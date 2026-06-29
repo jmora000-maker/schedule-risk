@@ -1,0 +1,10 @@
+# Core
+streamlit
+pydantic
+openai
+python-dotenv
+python-docx
+
+# Data Processing
+pandas
+numpy

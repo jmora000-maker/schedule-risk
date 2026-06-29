@@ -1,0 +1,74 @@
+================================================================================
+SCHEDULE RISK REPORT
+Report Date: June 28, 2026
+Total Findings: 19
+Task-Linked Findings: 19
+Milestone-Linked Findings: 4
+================================================================================
+
+TOP FINDINGS
+
+- [critical] critical_path_risk :: Task UID 2
+  Impact: Delays in this task will directly affect subsequent tasks, risking overall project timelines and deliverables.
+  Action: Escalate the issue to secure additional resources for the Requirements and Design task. (llm)
+  Evidence: Task: Requirements and Design, Start: 2026-01-06T08:00:00, Finish: 2026-01-12T17:00:00
+
+- [critical] critical_path_risk :: Task UID 3
+  Impact: If 'Build' is delayed further, it will directly impact the project timeline and subsequent tasks.
+  Action: Escalate the issue to secure additional resources for the 'Build' task. (llm)
+  Evidence: Task: Build, Start: 2026-01-13T08:00:00, Finish: 2026-01-21T17:00:00
+
+- [critical] critical_path_risk :: Task UID 4
+  Impact: If not addressed, this could delay the project timeline significantly, affecting subsequent tasks and overall delivery.
+  Action: Escalate the issue with the vendor to secure immediate resolution of the delivery delay. (llm)
+  Evidence: Task: Vendor Delivery, Start: 2026-01-13T08:00:00, Finish: 2026-01-23T17:00:00
+
+- [critical] status_risk :: Task UID 4
+  Impact: This could lead to project delays, affecting subsequent tasks and overall project timelines.
+  Action: Escalate the issue with the vendor to obtain immediate status updates and resolve health concerns. (llm)
+  Evidence: Task: Vendor Delivery, Start: 2026-01-13T08:00:00, Finish: 2026-01-23T17:00:00
+
+- [critical] critical_path_risk :: Task UID 5
+  Impact: If not addressed, project timelines will be jeopardized, potentially delaying the overall project delivery.
+  Action: Escalate the issue to secure immediate resources for the 'Integration and Test' task. (llm)
+  Evidence: Task: Integration and Test, Start: 2026-01-26T08:00:00, Finish: 2026-02-02T17:00:00
+
+- [critical] schedule_delay :: Task UID 5
+  Impact: This delay will push back the start of 'Integration and Test', potentially affecting subsequent tasks and overall project timeline.
+  Action: Escalate the delay of 'Build' and 'Vendor Delivery' to secure timely resolution. (llm)
+  Evidence: Task: Integration and Test, Start: 2026-01-26T08:00:00, Finish: 2026-02-02T17:00:00
+
+- [critical] status_risk :: Task UID 5
+  Impact: This may delay subsequent tasks and overall project timelines due to lack of clarity on progress.
+  Action: Confirm the status of task 'Integration and Test' and address any issues immediately. (llm)
+  Evidence: Task: Integration and Test, Start: 2026-01-26T08:00:00, Finish: 2026-02-02T17:00:00
+
+- [critical] critical_path_risk :: Task UID 6
+  Impact: If not addressed, this may delay the Production Signoff Milestone and overall project delivery.
+  Action: Confirm the new timeline for 'Deployment Readiness' and adjust dependencies accordingly. (llm)
+  Evidence: Task: Deployment Readiness, Start: 2026-02-03T08:00:00, Finish: 2026-02-05T17:00:00
+
+- [critical] status_risk :: Task UID 6
+  Impact: This could lead to missed deadlines and jeopardize the overall project timeline.
+  Action: Escalate the lack of updates on 'Deployment Readiness' to ensure timely resolution and communication. (llm)
+  Evidence: Task: Deployment Readiness, Start: 2026-02-03T08:00:00, Finish: 2026-02-05T17:00:00
+
+- [critical] critical_path_risk :: Task UID 7
+  Impact: If not addressed, this will delay the project timeline significantly, affecting subsequent tasks and overall delivery.
+  Action: Confirm the new timeline for the 'Production Signoff Milestone' and adjust dependent tasks accordingly. (llm)
+  Evidence: Task: Production Signoff Milestone, Start: 2026-02-06T17:00:00, Finish: 2026-02-06T17:00:00
+
+AT-RISK MILESTONES
+
+- Milestone 7: 4 findings
+
+UNLINKED FINDINGS
+
+- Findings without milestone linkage: 15
+
+FINDINGS BY SIGNAL TYPE
+
+- critical_path_risk: 6
+- status_risk: 6
+- schedule_delay: 5
+- readiness_risk: 2
