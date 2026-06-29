@@ -52,7 +52,7 @@ with col2:
         redirector = StreamlitStdoutRedirector(console_logs)
         redirector.reset()
 
-        with st.spinner("Processing Schedule Risk Pipeline..."):
+        with st.spinner("Processing Schedule Risk Parameters ..."):
             with contextlib.redirect_stdout(redirector):
                 final_narrative = run_automated_pipeline()
 
