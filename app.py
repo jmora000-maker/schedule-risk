@@ -45,7 +45,7 @@ with col1:
 with col2:
     st.subheader("Report Workspace")
     report_placeholder = st.empty()
-    report_placeholder.info("The Schedule Slip Report will populate here upon synthesis.")
+    report_placeholder.info("The Schedule Risk Report will populate here upon synthesis.")
 
     if start_pipeline:
         console_logs.empty()
