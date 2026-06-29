@@ -3,7 +3,7 @@ Script Name: inputs.py
 Description: Ingests project artifacts like schedules and meeting notes.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-29
 """
 
 from typing import List, Dict, Set

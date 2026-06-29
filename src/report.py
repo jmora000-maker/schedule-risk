@@ -3,7 +3,7 @@ Script Name: report.py
 Description: Generates and saves structured schedule-risk reports.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-29
 """
 
 from pathlib import Path
@@ -119,8 +119,11 @@ def build_schedule_risk_report(
         lines.append(f"- [{ui['severity']}] {ui['signal_type']} :: {ui['target']}")
         lines.append(f"  Impact: {ui['impact']}")
         lines.append(f"  Action: {ui['recommended_action']} ({ui['action_source']})")
-        if ui["top_evidence"]:
-            lines.append(f"  Evidence: {ui['top_evidence']}")
+        if ev:
+            lines.append(f"  Evidence Strength: {ev.evidence_strength}")
+            lines.append(f"  Evidence Sources: {', '.join(ev.source_types) or 'unknown'}")
+            if ev.is_schedule_only:
+                lines.append("  Evidence Note: Currently supported by schedule data only.")
         lines.append("")
 
     lines.append("AT-RISK MILESTONES")

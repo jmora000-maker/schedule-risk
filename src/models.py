@@ -3,7 +3,7 @@ Script Name: models.py
 Description: Data models for the schedule-risk pipeline.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-29
 """
 
 from pydantic import BaseModel, Field, conint, confloat
@@ -214,6 +214,9 @@ class RetrievedEvidenceBundle(BaseModel):
     grouped_evidence: Dict[str, List[ArtifactChunk]] = Field(default_factory=dict)
     neighbor_task_ids: List[str] = Field(default_factory=list)
     milestone_ids: List[str] = Field(default_factory=list)
+    evidence_strength: str = "strong"
+    source_types: List[str] = Field(default_factory=list)
+    is_schedule_only: bool = False
 
     class Config:
         extra = "forbid"

@@ -3,7 +3,7 @@ Script Name: rag.py
 Description: Retrieval-Augmented Generation engine for schedule-aware artifact retrieval.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-29
 """
 
 from typing import List, Dict, Optional, Any
@@ -65,7 +65,7 @@ class RAGEngine:
         return results
 
     def get_chunks_for_milestone(self, milestone_id: str, artifact_types: Optional[set[str]] = None) -> List[ArtifactChunk]:
-        chunks = self.by_milestone_id.get(milestone_id, [])
+        chunks = self.by_milestone_id.get(str(milestone_id), [])
         if artifact_types:
             chunks = [c for c in chunks if c.artifact_type in artifact_types]
         return chunks
@@ -87,7 +87,7 @@ class RAGEngine:
                 neighbors.extend(chunks)
         return neighbors
 
-    def _score_chunk(self, chunk: ArtifactChunk, finding: RiskFinding) -> float:
+    def _score_chunk(self, chunk: ArtifactChunk, finding: RiskFinding, has_schedule: bool = False) -> float:
         score = 0.0
         if finding.task_uid and str(chunk.task_uid) == str(finding.task_uid):
             score += 2.0
@@ -100,39 +100,79 @@ class RAGEngine:
             
         if chunk.severity and chunk.severity.lower() in {"high", "critical", "red"}:
             score += 1.0
+            
+        if has_schedule and chunk.artifact_type in {"issue", "task_update", "delivery_note", "meeting_note", "signal"}:
+            score += 2.5
+            
         return score
 
-    def build_evidence_bundle(self, finding: RiskFinding, graph: GraphManager) -> RetrievedEvidenceBundle:
-        evidence = []
+    def get_chunks_for_finding(self, finding: RiskFinding, graph: Optional[GraphManager] = None) -> List[ArtifactChunk]:
+        chunks = []
         
-        # 1. Directly linked
-        if finding.task_uid:
-            evidence.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid)))
-        if finding.milestone_id:
-            evidence.extend(self.get_chunks_for_milestone(finding.milestone_id))
-            
-        # 2. Neighbors
-        neighbor_task_ids = []
-        if finding.task_uid:
-            # Simple depth 1 neighbors
-            preds = graph.get_predecessors(finding.task_uid)
-            succs = graph.get_successors(finding.task_uid)
-            for n in preds + succs:
-                uid = n.get("task_uid") if isinstance(n, dict) else str(n).replace("task-", "")
-                if uid:
-                    neighbor_task_ids.append(str(uid))
-                    evidence.extend(self.get_chunks_for_task(task_uid=str(uid)))
+        # Signal type mapping based on requirements
+        
+        # 1. Schedule Delay
+        if finding.signal_type == "schedule_delay":
+            if finding.task_uid:
+                # Direct
+                chunks.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid)))
+                # Predecessors
+                if graph:
+                    chunks.extend(self.get_neighbor_chunks(str(finding.task_uid), graph))
+                # Linked issue/update/signal/delivery-note/meeting-note
+                chunks.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid), artifact_types={"issue", "task_update", "signal", "delivery_note", "meeting_note"}))
+        
+        # 2. Readiness Risk
+        elif finding.signal_type == "readiness_risk":
+            if finding.task_uid:
+                # Direct
+                chunks.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid)))
+                # Upstream chain (1-level predecessors for now)
+                if graph:
+                    chunks.extend(self.get_neighbor_chunks(str(finding.task_uid), graph))
+                # Readiness/blocker/signoff
+                chunks.extend(
+                    self.get_chunks_for_task(
+                        task_uid=str(finding.task_uid),
+                        artifact_types={"task_update", "issue", "meeting_note", "delivery_note", "milestone", "signal"}
+                    )
+                )
+        
+        # 3. Milestone Findings
+        elif finding.signal_type == "milestone_drift":
+            if finding.milestone_id:
+                # Milestone chunk
+                chunks.extend(self.get_chunks_for_milestone(finding.milestone_id))
+                # Milestone task chunk & predecessor
+                if finding.task_uid:
+                    chunks.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid)))
+                    if graph:
+                        chunks.extend(self.get_neighbor_chunks(str(finding.task_uid), graph))
+
+        # Default/Fallback
+        if not chunks and finding.task_uid:
+            chunks.extend(self.get_chunks_for_task(task_uid=str(finding.task_uid)))
             
         # Deduplicate
-        seen_ids = set()
-        unique_evidence = []
-        for c in evidence:
-            if c.chunk_id not in seen_ids:
-                unique_evidence.append(c)
-                seen_ids.add(c.chunk_id)
+        seen_keys = set()
+        unique_chunks = []
+        for c in chunks:
+            # dedupe by text plus source artifact
+            key = (c.text, c.source_artifact)
+            if key not in seen_keys:
+                unique_chunks.append(c)
+                seen_keys.add(key)
+        return unique_chunks
+
+    def build_evidence_bundle(self, finding: RiskFinding, graph: GraphManager) -> RetrievedEvidenceBundle:
+        # Get evidence using the source-aware helper
+        unique_evidence = self.get_chunks_for_finding(finding, graph)
+        
+        # Check if there's a schedule chunk
+        has_schedule = any(c.artifact_type == "schedule_task" for c in unique_evidence)
         
         # Score and rank
-        unique_evidence.sort(key=lambda c: self._score_chunk(c, finding), reverse=True)
+        unique_evidence.sort(key=lambda c: self._score_chunk(c, finding, has_schedule=has_schedule), reverse=True)
         
         grouped: Dict[str, List[ArtifactChunk]] = defaultdict(list)
         milestone_ids = {finding.milestone_id} if finding.milestone_id else set()
@@ -141,10 +181,31 @@ class RAGEngine:
             if c.milestone_id:
                 milestone_ids.add(c.milestone_id)
             
+        # Extract neighbor task IDs for the bundle metadata (re-derive from evidence)
+        neighbor_task_ids = set()
+        for c in unique_evidence:
+            if c.task_uid and str(c.task_uid) != str(finding.task_uid):
+                neighbor_task_ids.add(str(c.task_uid))
+            
+        # Add new fields
+        source_types = sorted(set(c.artifact_type for c in unique_evidence))
+        non_schedule_types = {t for t in source_types if t != "schedule_task"}
+        is_schedule_only = bool(unique_evidence) and not non_schedule_types
+
+        if is_schedule_only:
+            evidence_strength = "weak"
+        elif len(non_schedule_types) == 1:
+            evidence_strength = "moderate"
+        else:
+            evidence_strength = "strong"
+            
         return RetrievedEvidenceBundle(
             finding=finding,
             evidence_bundle=unique_evidence[:10], # Top 10
             grouped_evidence=dict(grouped),
-            neighbor_task_ids=list(set(neighbor_task_ids)),
-            milestone_ids=list(milestone_ids)
+            neighbor_task_ids=list(neighbor_task_ids),
+            milestone_ids=list(milestone_ids),
+            evidence_strength=evidence_strength,
+            source_types=source_types,
+            is_schedule_only=is_schedule_only
         )

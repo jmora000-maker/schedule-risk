@@ -3,7 +3,7 @@ Script Name: llm.py
 Description: Explanation layer for risk findings and actionable recommendations.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-29
 """
 
 import json
@@ -56,9 +56,16 @@ Return only the action sentence.
 def clean_action_text(text: str) -> str:
     if not text:
         return "Review the risk owner, confirm the recovery plan, and update the task status."
-    cleaned = " ".join(text.split())
-    cleaned = cleaned.replace("- ", "").replace("* ", "")
-    return cleaned[:160].rstrip()
+
+    # Standardize and clean
+    text = " ".join(text.split())
+    text = text.replace("- ", "").replace("* ", "")
+
+    # Reject generic "Escalate ... immediately"
+    if "escalate" in text.lower() and "immediately" in text.lower():
+        return "Review the risk owner, confirm the recovery plan, and update the task status."
+
+    return text[:220].rstrip()
 
 MILESTONE_SUMMARY_PROMPT = """You are a project manager summarizing risks for a specific milestone.
 Use the provided list of risk findings to:
@@ -87,7 +94,12 @@ def build_finding_payload(finding: RiskFinding, evidence: RetrievedEvidenceBundl
                 "milestone_id": getattr(c, "milestone_id", None),
             }
             for c in bundle
-        ]
+        ],
+        "metadata": {
+            "evidence_strength": evidence.evidence_strength,
+            "source_types": evidence.source_types,
+            "is_schedule_only": evidence.is_schedule_only,
+        }
     }
 
 def fallback_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceBundle) -> str:
@@ -122,6 +134,11 @@ def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceB
             temperature=0.1
         )
         explanation = response.choices[0].message.parsed
+        
+        # Apply logic for weak evidence
+        if evidence.is_schedule_only:
+            explanation.recommended_action = "Validate the latest status and confirm whether the schedule dates still reflect current reality."
+        
         if explanation.recommended_action:
             explanation.recommended_action = clean_action_text(explanation.recommended_action)
         return explanation
