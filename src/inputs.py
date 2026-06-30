@@ -3,7 +3,7 @@ Script Name: inputs.py
 Description: Ingests project artifacts like schedules and meeting notes.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-29
+Last Modified: 2026-06-30
 """
 
 from typing import List, Dict, Set, Any
@@ -125,10 +125,10 @@ class ProjectArtifactLoader:
         print(" -> Ingesting Project Artifacts.")
         self.tasks.extend(self.load_schedule_file(project_dir / "compact_schedule.xml"))
         self.load_meeting_notes(project_dir / "meeting_notes_v3.docx")
-        self.load_milestones(project_dir / "milestones.csv")
-        self.load_issue_log(project_dir / "issue_log.csv")
-        self.load_task_updates(project_dir / "task_updates.csv")
-        self.load_delivery_notes(project_dir / "delivery_notes.txt")
+        #self.load_milestones(project_dir / "milestones.csv")
+        #self.load_issue_log(project_dir / "issue_log.csv")
+        #self.load_task_updates(project_dir / "task_updates.csv")
+        #self.load_delivery_notes(project_dir / "delivery_notes.txt")
 
 
     def _read_meeting_notes(self, path) -> List[str]:

@@ -116,7 +116,7 @@ def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceB
                 {"role": "user", "content": f"Explain this risk finding:\n{json.dumps(payload, indent=2)}"}
             ],
             response_format=RiskExplanation,
-            temperature=0.1
+            temperature=0.2
         )
         explanation = response.choices[0].message.parsed
         

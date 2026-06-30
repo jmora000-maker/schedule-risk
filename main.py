@@ -65,7 +65,7 @@ def run_automated_pipeline(data_path: Path = Path("data")) -> str:
     
     # 5. Reporting
     print("STEP 5: Generating Report.")
-    report_text = report.build_schedule_risk_report(findings, explanations, evidence_map)
+    report_text = report.build_schedule_risk_report(findings, explanations, evidence_map, loader.milestones)
     print("PIPELINE COMPLETED")
     
     return report_text

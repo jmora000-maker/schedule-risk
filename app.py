@@ -24,7 +24,6 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("System Configuration")
 
-    # --- 2. Hardcoded File Loading Logic ---
     # Check if the data folder exists
     if data_folder.exists():
 
