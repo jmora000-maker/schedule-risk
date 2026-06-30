@@ -21,14 +21,14 @@ TOP FINDINGS
   Evidence Sources: meeting_note_signal, schedule_task
 
 - [high] status_risk :: Task UID 2
-  Impact: Delays in this task risk subsequent phases, potentially jeopardizing the overall project timeline and milestones.
-  Action: Escalate the need for immediate updates on the Requirements and Design task. (llm)
+  Impact: Delays in this task risk subsequent phases and overall project milestones, potentially pushing completion dates further out.
+  Action: Escalate the status of the 'Requirements and Design' task to ensure timely updates and resolution. (llm)
   Evidence Strength: moderate
   Evidence Sources: meeting_note_signal, schedule_task
 
 - [high] vendor_risk :: Task UID 4
-  Impact: Delay in vendor delivery could jeopardize project timelines and subsequent tasks.
-  Action: Escalate the vendor delivery issue to ensure timely resolution and avoid further schedule impacts. (llm)
+  Impact: The delay in vendor delivery could jeopardize project timelines and subsequent tasks dependent on this delivery.
+  Action: Escalate the vendor delivery issue to ensure timely resolution and prevent further schedule impacts. (llm)
   Evidence Strength: moderate
   Evidence Sources: meeting_note_signal, schedule_task
 
@@ -38,8 +38,8 @@ TOP FINDINGS
   Evidence Strength: moderate
   Evidence Sources: meeting_note_signal, schedule_task
 
-- [high] readiness_risk :: Task UID 7
-  Impact: Delays may lead to missed deadlines and affect overall project delivery.
+- [high] schedule_delay :: Task UID 7
+  Impact: The delay in 'Deployment Readiness' affects the critical path, risking overall project timelines.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
@@ -55,7 +55,7 @@ UNLINKED FINDINGS
 
 FINDINGS BY SIGNAL TYPE
 
-- schedule_delay: 2
+- schedule_delay: 3
 - status_risk: 1
 - vendor_risk: 1
-- readiness_risk: 2
+- readiness_risk: 1

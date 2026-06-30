@@ -35,37 +35,22 @@ Operational Action Rules:
 
 Keep the explanation concise, operational, and project-manager friendly."""
 
-ACTION_PROMPT = """
-You are generating one immediate project-management action for an already-confirmed schedule risk.
-
-Rules:
-- Return exactly one action.
-- Maximum 22 words.
-- No bullet points.
-- No numbering.
-- No headings.
-- No explanation.
-- Start with a verb.
-- Make the action specific to the task, predecessor, milestone, vendor, or readiness condition in the evidence.
-- Do not say "accelerate" unless the evidence clearly supports acceleration as the direct remedy.
-- Prefer actions like escalate, confirm, rebaseline, unblock, validate, secure, assign, approve, close, or reschedule when appropriate.
-
-Return only the action sentence.
-"""
-
 def clean_action_text(text: str) -> str:
+    fallback = "Validate the latest status and confirm whether the schedule dates still reflect current reality."
     if not text:
-        return "Review the risk owner, confirm the recovery plan, and update the task status."
+        return fallback
 
-    # Standardize and clean
     text = " ".join(text.split())
     text = text.replace("- ", "").replace("* ", "")
 
-    # Reject generic "Escalate ... immediately"
     if "escalate" in text.lower() and "immediately" in text.lower():
-        return "Review the risk owner, confirm the recovery plan, and update the task status."
+        return fallback
 
-    return text[:220].rstrip()
+    words = text.split()
+    if len(words) > 22:
+        text = " ".join(words[:22]).rstrip(",.;:") + "."
+
+    return text
 
 MILESTONE_SUMMARY_PROMPT = """You are a project manager summarizing risks for a specific milestone.
 Use the provided list of risk findings to:
@@ -96,9 +81,9 @@ def build_finding_payload(finding: RiskFinding, evidence: RetrievedEvidenceBundl
             for c in bundle
         ],
         "metadata": {
-            "evidence_strength": evidence.evidence_strength,
-            "source_types": evidence.source_types,
-            "is_schedule_only": evidence.is_schedule_only,
+            "evidence_strength": evidence.evidence_strength if evidence else "weak",
+            "source_types": evidence.source_types if evidence else [],
+            "is_schedule_only": evidence.is_schedule_only if evidence else False,
         }
     }
 
@@ -156,9 +141,8 @@ def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceB
         )
 
 def recommend_next_action(finding: RiskFinding, evidence: RetrievedEvidenceBundle) -> str:
-    # Use the canonical source: generate_risk_explanation()
     explanation = generate_risk_explanation(finding, evidence)
-    return explanation.recommended_action
+    return clean_action_text(explanation.recommended_action)
 
 def generate_milestone_summary(findings: List[RiskFinding]) -> str:
     if not findings:
