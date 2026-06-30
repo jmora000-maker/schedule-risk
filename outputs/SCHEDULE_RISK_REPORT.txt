@@ -1,0 +1,57 @@
+================================================================================
+SCHEDULE RISK REPORT
+Report Date: June 30, 2026
+Total Findings: 6
+Task-Linked Findings: 6
+Milestone-Linked Findings: 1
+================================================================================
+
+TOP FINDINGS
+
+[CRITICAL] TASK UID 3 : SCHEDULE_DELAY
+- Impact: The delay in 'Build' jeopardizes the Production Signoff Milestone, risking overall project timelines.
+- Action: Escalate the approval process for required documentation from Vendor B to mitigate further delays. (llm)
+- Evidence Strength: moderate
+- Evidence Sources: meeting_note_signal, schedule_task
+
+[CRITICAL] TASK UID 5 : SCHEDULE_DELAY
+- Impact: Delays in 'Integration and Test' threaten the overall project timeline and critical milestones.
+- Action: Escalate the delay issues with the vendor and confirm new delivery dates for 'Build' and 'Vendor Delivery'. (llm)
+- Evidence Strength: moderate
+- Evidence Sources: meeting_note_signal, schedule_task
+
+[HIGH] TASK UID 2 : STATUS_RISK
+- Impact: Delays in this task risk subsequent phases and overall project milestones, potentially pushing completion dates further out.
+- Action: Escalate the issue with the Requirements and Design task to secure timely updates and resolution. (llm)
+- Evidence Strength: moderate
+- Evidence Sources: meeting_note_signal, schedule_task
+
+[HIGH] TASK UID 4 : VENDOR_RISK
+- Impact: This delay risks pushing back subsequent tasks and overall project milestones, potentially leading to increased costs and resource conflicts.
+- Action: Escalate the vendor delivery issue to ensure timely resolution and prevent further schedule impacts. (llm)
+- Evidence Strength: moderate
+- Evidence Sources: meeting_note_signal, schedule_task
+
+[HIGH] TASK UID 6 : READINESS_RISK
+- Impact: Delays may push back the overall project timeline, affecting critical milestones and reducing schedule confidence.
+- Action: Confirm the new schedule for 'Deployment Readiness' with all stakeholders to ensure alignment and readiness. (llm)
+- Evidence Strength: moderate
+- Evidence Sources: meeting_note_signal, schedule_task
+
+[HIGH] TASK UID 7 : SCHEDULE_DELAY
+- Impact: This delay could jeopardize the project timeline and affect subsequent critical tasks.
+- Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
+- Evidence Strength: weak
+- Evidence Sources: schedule_task
+- Evidence Note: Currently supported by schedule data only.
+
+AT-RISK MILESTONES
+
+MILESTONE 7 : 1 findings
+
+FINDINGS BY SIGNAL TYPE
+
+- schedule_delay: 3
+- status_risk: 1
+- vendor_risk: 1
+- readiness_risk: 1
