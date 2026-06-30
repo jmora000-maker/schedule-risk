@@ -6,7 +6,7 @@ Created: 2026-06-28
 Last Modified: 2026-06-29
 """
 
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Any
 import re
 import uuid
 import csv
@@ -178,12 +178,21 @@ class ProjectArtifactLoader:
         with open(path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                milestone = Milestone(**row)
+                milestone = Milestone(
+                    milestone_id=row.get("milestone_id") or None,
+                    name=row.get("name", ""),
+                    date=self._parse_datetime(row.get("date")),
+                    status=row.get("status") or None,
+                    owner=row.get("owner") or None,
+                    task_id=parse_int(row.get("task_id")),
+                    task_uid=parse_int(row.get("task_uid")),
+                    source_artifact=path.name,
+                )
                 self.milestones.append(milestone)
                 self.raw_chunks.append(self._make_chunk(
                     artifact_type="milestone",
                     source_artifact=path.name,
-                    text=f"Milestone: {milestone.name} (Target: {milestone.target_date})",
+                    text=f"Milestone: {milestone.name} (Target: {milestone.date})",
                     milestone_id=milestone.milestone_id
                 ))
 
@@ -195,12 +204,26 @@ class ProjectArtifactLoader:
         with open(path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                issue = Issue(**row)
+                issue = Issue(
+                    issue_id=row.get("issue_id") or None,
+                    summary=row.get("summary", ""),
+                    status=row.get("status") or None,
+                    severity=row.get("severity") or None,
+                    priority=row.get("priority") or None,
+                    owner=row.get("owner") or None,
+                    created_at=self._parse_date(row.get("created_at")),
+                    updated_at=self._parse_date(row.get("updated_at")),
+                    due_date=self._parse_date(row.get("due_date")),
+                    task_id=parse_int(row.get("task_id")),
+                    task_uid=parse_int(row.get("task_uid")),
+                    milestone_id=row.get("milestone_id") or None,
+                    source_artifact=path.name,
+                )
                 self.issues.append(issue)
                 self.raw_chunks.append(self._make_chunk(
                     artifact_type="issue",
                     source_artifact=path.name,
-                    text=f"Issue: {issue.description}",
+                    text=f"Issue: {issue.summary}",
                     issue_id=issue.issue_id,
                     task_uid=issue.task_uid,
                     severity=issue.severity
@@ -214,7 +237,18 @@ class ProjectArtifactLoader:
         with open(path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                update = TaskUpdate(**row)
+                update = TaskUpdate(
+                    update_id=row.get("update_id") or None,
+                    event_date=self._parse_date(row.get("event_date")),
+                    task_id=parse_int(row.get("task_id")),
+                    task_uid=parse_int(row.get("task_uid")),
+                    milestone_id=row.get("milestone_id") or None,
+                    status=row.get("status") or None,
+                    percent_complete=parse_int(row.get("percent_complete")),
+                    owner=row.get("owner") or None,
+                    narrative=row.get("narrative", ""),
+                    source_artifact=path.name,
+                )
                 self.task_updates.append(update)
                 self.raw_chunks.append(self._make_chunk(
                     artifact_type="task_update",
@@ -232,12 +266,25 @@ class ProjectArtifactLoader:
         with open(path, "r", encoding="utf-8") as f:
             # Assuming simple text format
             text = f.read()
-            note = DeliveryNote(text=text, source_artifact=path.name)
+            note = DeliveryNote(
+                text=text,
+                source_artifact=path.name,
+                note_id=None,
+                event_date=None,
+                status=None,
+                owner=None,
+                task_id=None,
+                task_uid=None,
+                milestone_id=None,
+            )
             self.delivery_notes.append(note)
             self.raw_chunks.append(self._make_chunk(
                 artifact_type="delivery_note",
                 source_artifact=path.name,
                 text=f"Delivery Note: {text[:200]}...",
+                task_id=None,
+                task_uid=None,
+                milestone_id=None,
             ))
 
 
@@ -439,7 +486,7 @@ class ProjectArtifactLoader:
                 event_date=self._parse_date(start_raw),
             ))
         
-        for task in self.tasks:
+        for task in tasks:
             norm = self._normalize_text(task.name)
             if norm:
                 self.task_name_to_task[norm] = task
