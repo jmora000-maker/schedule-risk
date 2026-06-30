@@ -2,44 +2,43 @@
 SCHEDULE RISK REPORT
 Report Date: June 30, 2026
 Total Findings: 6
-Task-Linked Findings: 6
-Milestone-Linked Findings: 1
+At-Risk Milestones: 1
 ================================================================================
 
-TOP FINDINGS
+TASK-LINKED FINDINGS
 
 [CRITICAL] TASK UID 3 : SCHEDULE_DELAY
-- Impact: Delays in 'Requirements and Design' jeopardize the critical path, risking the Production Signoff Milestone.
+- Impact: This delay jeopardizes the Production Signoff Milestone, pushing it beyond the baseline date.
 - Action: Escalate the approval process for required documentation from Vendor B to mitigate further delays.
 - Evidence Strength: moderate
 - Evidence Sources: meeting_note_signal, schedule_task
 
 [CRITICAL] TASK UID 5 : SCHEDULE_DELAY
-- Impact: Delays in 'Integration and Test' jeopardize the overall project timeline and critical milestones.
-- Action: Escalate the delays with Vendor B to secure timely documentation for compliance.
+- Impact: Delays in predecessors 'Build' and 'Vendor Delivery' have caused critical path impacts, risking overall project timelines.
+- Action: Escalate the delay issues with the Build and Vendor Delivery tasks to secure immediate resolutions.
 - Evidence Strength: moderate
 - Evidence Sources: meeting_note_signal, schedule_task
 
 [HIGH] TASK UID 2 : STATUS_RISK
 - Impact: Delays in this task risk subsequent phases and overall project milestones, potentially pushing deadlines further.
-- Action: Escalate the issue to the project manager for immediate resolution of the Requirements and Design task.
+- Action: Escalate the need for immediate updates on the 'Requirements and Design' task.
 - Evidence Strength: moderate
 - Evidence Sources: meeting_note_signal, schedule_task
 
 [HIGH] TASK UID 4 : VENDOR_RISK
-- Impact: This delay risks the overall project timeline and may affect subsequent tasks dependent on vendor delivery.
+- Impact: The delay may impact subsequent tasks and overall project timeline due to dependency on vendor delivery.
 - Action: Escalate the vendor delivery issue to ensure timely resolution and prevent further schedule impacts.
 - Evidence Strength: moderate
 - Evidence Sources: meeting_note_signal, schedule_task
 
 [HIGH] TASK UID 6 : READINESS_RISK
-- Impact: Delays in 'Deployment Readiness' could push back the Production Signoff Milestone, affecting overall project timelines.
-- Action: Confirm the revised schedule for 'Deployment Readiness' and communicate updates to all stakeholders.
+- Impact: Delays may push back the overall project timeline, affecting critical milestones and stakeholder commitments.
+- Action: Escalate the delay in upstream tasks to ensure timely completion of 'Deployment Readiness'.
 - Evidence Strength: moderate
 - Evidence Sources: meeting_note_signal, schedule_task
 
 [HIGH] TASK UID 7 : SCHEDULE_DELAY
-- Impact: Delay in 'Production Signoff Milestone' could jeopardize project timelines due to its critical status.
+- Impact: The delay of the 'Production Signoff Milestone' could jeopardize project timelines and deliverables due to its critical status.
 - Action: Validate the latest status and confirm whether the schedule dates still reflect current reality.
 - Evidence Strength: weak
 - Evidence Sources: schedule_task

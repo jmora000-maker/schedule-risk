@@ -105,11 +105,10 @@ def build_schedule_risk_report(
         "SCHEDULE RISK REPORT",
         f"Report Date: {today}",
         f"Total Findings: {len(findings)}",
-        f"Task-Linked Findings: {task_linked}",
-        f"Milestone-Linked Findings: {milestone_linked}",
+        f"At-Risk Milestones: {milestone_linked}",
         "=" * 80,
         "",
-        "TOP FINDINGS",
+        "TASK-LINKED FINDINGS",
         ""
     ]
 
