@@ -116,7 +116,7 @@ def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceB
                 {"role": "user", "content": f"Explain this risk finding:\n{json.dumps(payload, indent=2)}"}
             ],
             response_format=RiskExplanation,
-            temperature=0.2
+            temperature=0.3
         )
         explanation = response.choices[0].message.parsed
         
@@ -155,7 +155,7 @@ def generate_milestone_summary(findings: List[RiskFinding]) -> str:
                 {"role": "system", "content": MILESTONE_SUMMARY_PROMPT},
                 {"role": "user", "content": f"Summarize these milestone risks:\n{json.dumps(payload, indent=2)}"}
             ],
-            temperature=0.1
+            temperature=0.3
         )
         return (response.choices[0].message.content or "").strip()
     except Exception as e:
@@ -173,7 +173,7 @@ def generate_portfolio_summary(findings: List[RiskFinding]) -> str:
                 {"role": "system", "content": PORTFOLIO_SUMMARY_PROMPT},
                 {"role": "user", "content": f"Summarize these portfolio risks:\n{json.dumps(payload, indent=2)}"}
             ],
-            temperature=0.1
+            temperature=0.3
         )
         return (response.choices[0].message.content or "").strip()
     except Exception as e:

@@ -120,7 +120,7 @@ def build_schedule_risk_report(
 
         lines.append(f"[{ui['severity'].upper()}] {ui['target'].upper()} : {ui['signal_type'].upper()}")
         lines.append(f"- Impact: {ui['impact']}")
-        lines.append(f"- Action: {ui['recommended_action']} ({ui['action_source']})")
+        lines.append(f"- Action: {ui['recommended_action']}")
         if ev:
             lines.append(f"- Evidence Strength: {ev.evidence_strength}")
             lines.append(f"- Evidence Sources: {', '.join(ev.source_types) or 'unknown'}")
@@ -139,11 +139,6 @@ def build_schedule_risk_report(
     else:
         lines.append("- No milestone-linked findings identified.")
 
-    lines.append("")
-    lines.append("FINDINGS BY SIGNAL TYPE")
-    lines.append("")
-    for signal_type, items in by_signal.items():
-        lines.append(f"- {signal_type}: {len(items)}")
 
     final_report_text = "\n".join(lines)
     save_schedule_risk_report(final_report_text)
