@@ -9,12 +9,18 @@ Last Modified: 2026-06-29
 from typing import List, Dict, Set
 import re
 import uuid
+import csv
 from pathlib import Path
 from datetime import datetime, date
 from docx import Document
 from src.config import (
     meeting_notes_path,
     schedule_path,
+    milestones_path,
+    issue_log_path,
+    task_updates_path,
+    delivery_notes_path,
+    graph_path,
 )
 from src.taxonomy import CorporateTaxonomyNormalizer
 from src.models import (
@@ -45,11 +51,58 @@ class ProjectArtifactLoader:
         self.task_updates: List[TaskUpdate] = []
         self.delivery_notes: List[DeliveryNote] = []
         self.raw_chunks: List[ArtifactChunk] = []
-        self.task_id_to_uid_map: Dict[str, str] = {}
+        self.task_id_to_uid_map: Dict[int, int] = {}
+        self.task_name_to_task: Dict[str, ScheduleTask] = {}
+        self.task_aliases = {
+            "requirements planning": "Requirements and Design",
+            "requirements and planning": "Requirements and Design",
+            "build phase": "Build",
+            "vendor delivery": "Vendor Delivery",
+            "integration and test": "Integration and Test",
+            "integration test": "Integration and Test",
+            "readiness review": "Deployment Readiness",
+            "production signoff": "Production Signoff Milestone",
+        }
         self.ingestion_failures: Dict[str, int] = {}
 
+    def _make_chunk(
+        self,
+        *,
+        artifact_type: str,
+        source_artifact: str,
+        text: str,
+        task_id: int | None = None,
+        task_uid: int | None = None,
+        milestone_id: str | None = None,
+        issue_id: str | None = None,
+        owner: str | None = None,
+        status: str | None = None,
+        progress: int | None = None,
+        severity: str | None = None,
+        confidence: float | None = None,
+        event_date: date | None = None,
+        metadata: Dict[str, Any] | None = None,
+    ) -> ArtifactChunk:
+        return ArtifactChunk(
+            chunk_id=uuid.uuid4().hex,
+            artifact_type=artifact_type,
+            source_artifact=source_artifact,
+            text=text,
+            task_id=task_id,
+            task_uid=task_uid,
+            milestone_id=milestone_id,
+            issue_id=issue_id,
+            owner=owner,
+            status=status,
+            progress=progress,
+            severity=severity,
+            confidence=confidence,
+            event_date=event_date,
+            metadata=metadata or {},
+        )
+
     def _parse_bool(self, val):
-        return val == "1"
+        return str(val).strip().lower() in {"1", "true", "yes"}
 
     def _parse_datetime(self, val):
         if not val: return None
@@ -65,10 +118,17 @@ class ProjectArtifactLoader:
         except ValueError:
             return None
 
+    def _normalize_text(self, text: str) -> str:
+        return re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip()
+
     def load_project_artifacts(self, project_dir: Path):
         print(" -> Ingesting Project Artifacts.")
         self.tasks.extend(self.load_schedule_file(project_dir / "compact_schedule.xml"))
         self.load_meeting_notes(project_dir / "meeting_notes_v3.docx")
+        self.load_milestones(project_dir / "milestones.csv")
+        self.load_issue_log(project_dir / "issue_log.csv")
+        self.load_task_updates(project_dir / "task_updates.csv")
+        self.load_delivery_notes(project_dir / "delivery_notes.txt")
 
 
     def _read_meeting_notes(self, path) -> List[str]:
@@ -101,10 +161,84 @@ class ProjectArtifactLoader:
 
     def load_meeting_notes(self, path):
         print(f" -> Loading meeting notes: {path.name}")
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return
         lines = self._read_meeting_notes(path)
-        if not lines: return
+        if not lines:
+            return
         
         self.signals.extend(self.load_meeting_note_signals_from_lines(lines, path))
+
+    def load_milestones(self, path: Path):
+        print(f" -> Loading milestones: {path.name}")
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return
+        with open(path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                milestone = Milestone(**row)
+                self.milestones.append(milestone)
+                self.raw_chunks.append(self._make_chunk(
+                    artifact_type="milestone",
+                    source_artifact=path.name,
+                    text=f"Milestone: {milestone.name} (Target: {milestone.target_date})",
+                    milestone_id=milestone.milestone_id
+                ))
+
+    def load_issue_log(self, path: Path):
+        print(f" -> Loading issue log: {path.name}")
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return
+        with open(path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                issue = Issue(**row)
+                self.issues.append(issue)
+                self.raw_chunks.append(self._make_chunk(
+                    artifact_type="issue",
+                    source_artifact=path.name,
+                    text=f"Issue: {issue.description}",
+                    issue_id=issue.issue_id,
+                    task_uid=issue.task_uid,
+                    severity=issue.severity
+                ))
+
+    def load_task_updates(self, path: Path):
+        print(f" -> Loading task updates: {path.name}")
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return
+        with open(path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                update = TaskUpdate(**row)
+                self.task_updates.append(update)
+                self.raw_chunks.append(self._make_chunk(
+                    artifact_type="task_update",
+                    source_artifact=path.name,
+                    text=f"Update: {update.narrative}",
+                    task_uid=update.task_uid,
+                    status=update.status
+                ))
+
+    def load_delivery_notes(self, path: Path):
+        print(f" -> Loading delivery notes: {path.name}")
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return
+        with open(path, "r", encoding="utf-8") as f:
+            # Assuming simple text format
+            text = f.read()
+            note = DeliveryNote(text=text, source_artifact=path.name)
+            self.delivery_notes.append(note)
+            self.raw_chunks.append(self._make_chunk(
+                artifact_type="delivery_note",
+                source_artifact=path.name,
+                text=f"Delivery Note: {text[:200]}...",
+            ))
 
 
 
@@ -123,7 +257,7 @@ class ProjectArtifactLoader:
             
             if task_match:
                 match_type = task_match.group(1)
-                value = task_match.group(2)
+                value = parse_int(task_match.group(2))
                 if match_type == "task":
                     task_id = value
                     task_uid = self.task_id_to_uid_map.get(task_id)
@@ -131,6 +265,30 @@ class ProjectArtifactLoader:
                     task_uid = value
             
             milestone_id = milestone_match.group(1) if milestone_match else None
+
+            # Name-based resolution
+            if task_id is None and task_uid is None:
+                line_norm = self._normalize_text(line)
+                matched_task = None
+                
+                # Check aliases first
+                for alias, canonical_name in self.task_aliases.items():
+                    if alias in line_norm:
+                        target = self.task_name_to_task.get(self._normalize_text(canonical_name))
+                        if target:
+                            matched_task = target
+                            break
+                
+                # If not found by alias, check task names
+                if not matched_task:
+                    for norm_name, task in self.task_name_to_task.items():
+                        if norm_name and norm_name in line_norm:
+                            matched_task = task
+                            break
+                
+                if matched_task:
+                    task_id = matched_task.task_id
+                    task_uid = matched_task.task_uid
 
             # Get signal structure from normalizer
             sig = self.normalizer.classify_concern(
@@ -144,15 +302,14 @@ class ProjectArtifactLoader:
             # If a valid signal type was identified (not the default friction)
             if sig.signal_type != "general_operational_friction":
                 # Escalation logic
-                key = (task_id, milestone_id, sig.signal_type)
+                key = (task_id, task_uid, milestone_id, sig.signal_type)
                 if seen_signals.get(key, 0) > 0:
                     if sig.severity == "medium": sig.severity = "high"
                     elif sig.severity == "high": sig.severity = "critical"
                 seen_signals[key] = seen_signals.get(key, 0) + 1
                 
                 signals.append(sig)
-                self.raw_chunks.append(ArtifactChunk(
-                    chunk_id=uuid.uuid4().hex,
+                self.raw_chunks.append(self._make_chunk(
                     artifact_type="meeting_note_signal",
                     source_artifact=path.name,
                     text=f"Signal {sig.signal_type}: {line.strip()}",
@@ -164,12 +321,15 @@ class ProjectArtifactLoader:
                     severity=sig.severity,
                     confidence=sig.confidence,
                     event_date=None,
+                    metadata={"signal_type": sig.signal_type},
                 ))
         return signals
 
     def load_schedule_file(self, path) -> List[ScheduleTask]:
         print(f" -> Loading schedule file: {path.name}")
-        if not path.exists(): return []
+        if not path.exists():
+            self.ingestion_failures[path.name] = self.ingestion_failures.get(path.name, 0) + 1
+            return []
         ns = {"ms": "http://schemas.microsoft.com/project"}
         try:
             root = ET.parse(path).getroot()
@@ -231,24 +391,33 @@ class ProjectArtifactLoader:
                     attr_name = FIELD_MAP.get(field_id, field_id)
                     ext_attrs[attr_name] = value
 
+            name = task.findtext("ms:Name", default="", namespaces=ns)
+            start_raw = task.findtext("ms:Start", default="", namespaces=ns)
+            finish_raw = task.findtext("ms:Finish", default="", namespaces=ns)
+            percent_complete = parse_int(task.findtext("ms:PercentComplete", default="", namespaces=ns))
+            task_id = parse_int(task.findtext("ms:ID", default="", namespaces=ns))
+            task_uid = parse_int(task.findtext("ms:UID", default="", namespaces=ns))
+            if task_uid is None:
+                continue
+
             tasks.append(ScheduleTask(
-                task_uid=parse_int(task_uid),
-                task_id=parse_int(task.findtext("ms:ID", default="", namespaces=ns)),
-                name=task.findtext("ms:Name", default="", namespaces=ns),
-                start=self._parse_datetime(task.findtext("ms:Start", default="", namespaces=ns)),
-                finish=self._parse_datetime(task.findtext("ms:Finish", default="", namespaces=ns)),
+                task_uid=task_uid,
+                task_id=task_id,
+                name=name,
+                start=self._parse_datetime(start_raw),
+                finish=self._parse_datetime(finish_raw),
                 baseline_start=self._parse_datetime(task.findtext("ms:Baseline/ms:Start", default="", namespaces=ns)),
                 baseline_finish=self._parse_datetime(task.findtext("ms:Baseline/ms:Finish", default="", namespaces=ns)),
                 actual_start=self._parse_datetime(task.findtext("ms:ActualStart", default="", namespaces=ns)),
                 actual_finish=self._parse_datetime(task.findtext("ms:ActualFinish", default="", namespaces=ns)),
-                percent_complete=parse_int(task.findtext("ms:PercentComplete", default="", namespaces=ns)),
+                percent_complete=percent_complete,
                 remaining_duration=task.findtext("ms:RemainingDuration", default="", namespaces=ns),
                 critical=self._parse_bool(task.findtext("ms:Critical", default="", namespaces=ns)),
                 total_slack=task.findtext("ms:TotalSlack", default="", namespaces=ns),
                 notes=task.findtext("ms:Notes", default="", namespaces=ns),
                 source_artifact=path.name,
                 predecessor_uids=[int(p) for p in preds if p and p.isdigit()],
-                assignments=assignments_map.get(task_uid, []),
+                assignments=assignments_map.get(str(task_uid), []),
                 is_milestone=is_milestone,
                 extended_attributes=ext_attrs,
                 slip_category=ext_attrs.get("slip_category"),
@@ -257,28 +426,35 @@ class ProjectArtifactLoader:
                 update_health=ext_attrs.get("update_health"),
             ))
             
-            self.task_id_to_uid_map[task.findtext("ms:ID", default="", namespaces=ns)] = task_uid
+            if task_id is not None and task_uid is not None:
+                self.task_id_to_uid_map[task_id] = task_uid
             
-            self.raw_chunks.append(ArtifactChunk(
-                chunk_id=uuid.uuid4().hex,
+            self.raw_chunks.append(self._make_chunk(
                 artifact_type="schedule_task",
                 source_artifact=path.name,
-                text=f"Task: {task.findtext('ms:Name', default='', namespaces=ns)}, Start: {task.findtext('ms:Start', default='', namespaces=ns)}, Finish: {task.findtext('ms:Finish', default='', namespaces=ns)}",
-                task_id=parse_int(task.findtext("ms:ID", default="", namespaces=ns)),
-                task_uid=parse_int(task_uid),
-                owner=None,
-                status=None,
-                progress=parse_int(task.findtext("ms:PercentComplete", default="0")),
-                severity=None,
-                event_date=self._parse_date(task.findtext("ms:Start", default="")),
+                text=f"Task: {name}, Start: {start_raw}, Finish: {finish_raw}",
+                task_id=task_id,
+                task_uid=task_uid,
+                progress=percent_complete,
+                event_date=self._parse_date(start_raw),
             ))
+        
+        for task in self.tasks:
+            norm = self._normalize_text(task.name)
+            if norm:
+                self.task_name_to_task[norm] = task
+
         return tasks
 
 
     def ingest_all(self):
         self.tasks.extend(self.load_schedule_file(schedule_path))
         self.load_meeting_notes(meeting_notes_path)
-        
+        self.load_milestones(milestones_path)
+        self.load_issue_log(issue_log_path)
+        self.load_task_updates(task_updates_path)
+        self.load_delivery_notes(delivery_notes_path)
+        self.print_ingestion_summary()
         self.build_graph()
 
     def ingest_data(self):
@@ -286,13 +462,24 @@ class ProjectArtifactLoader:
 
     def build_graph(self):
         print(" -> Building Knowledge Graph.")
-        graph = GraphManager(graph_path="knowledge_graph/graph.json")
+        graph = GraphManager(graph_path=graph_path)
         graph.build_from_artifacts(
-            self.tasks, 
-            self.milestones, 
-            self.issues, 
-            self.task_updates, 
-            self.delivery_notes, 
-            self.signals
+            self.tasks,
+            self.milestones,
+            self.issues,
+            self.task_updates,
+            self.delivery_notes,
+            self.signals,
         )
         graph.save()
+
+    def print_ingestion_summary(self):
+        print(" -> Ingestion summary")
+        print(f"    tasks: {len(self.tasks)}")
+        print(f"    milestones: {len(self.milestones)}")
+        print(f"    issues: {len(self.issues)}")
+        print(f"    task_updates: {len(self.task_updates)}")
+        print(f"    delivery_notes: {len(self.delivery_notes)}")
+        print(f"    signals: {len(self.signals)}")
+        print(f"    raw_chunks: {len(self.raw_chunks)}")
+        print(f"    failures: {self.ingestion_failures}")

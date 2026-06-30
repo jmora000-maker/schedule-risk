@@ -9,42 +9,42 @@ Milestone-Linked Findings: 1
 TOP FINDINGS
 
 - [critical] schedule_delay :: Task UID 5
-  Impact: Delays in 'Build' and 'Vendor Delivery' jeopardize the critical path, risking overall project timelines.
+  Impact: Delays in 'Build' and 'Vendor Delivery' threaten the critical path, risking overall project timeline.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
   Evidence Note: Currently supported by schedule data only.
 
 - [high] critical_path_risk :: Task UID 2
-  Impact: Delays in this task could directly impact the overall project timeline and subsequent tasks.
+  Impact: If this task is delayed further, it will directly impact the overall project timeline and delivery.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
   Evidence Note: Currently supported by schedule data only.
 
 - [high] schedule_delay :: Task UID 3
-  Impact: Delays in 'Build' could jeopardize the critical path and overall project timeline.
+  Impact: Delays in 'Build' may affect subsequent tasks, risking overall project timelines.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
   Evidence Note: Currently supported by schedule data only.
 
 - [high] schedule_delay :: Task UID 4
-  Impact: This delay could jeopardize the critical path and overall project timeline.
+  Impact: This delay can affect the overall project timeline, especially since 'Vendor Delivery' is critical.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
   Evidence Note: Currently supported by schedule data only.
 
 - [high] schedule_delay :: Task UID 6
-  Impact: This delay jeopardizes the critical path, potentially affecting the overall project timeline and subsequent milestones.
+  Impact: This delay may push the critical path, affecting overall project timelines and deliverables.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task
   Evidence Note: Currently supported by schedule data only.
 
 - [high] schedule_delay :: Task UID 7
-  Impact: The delay in 'Deployment Readiness' affects the critical path, risking overall project timelines.
+  Impact: This delay jeopardizes the critical path, potentially affecting overall project timelines.
   Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
   Evidence Strength: weak
   Evidence Sources: schedule_task

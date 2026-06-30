@@ -29,6 +29,7 @@ task_updates_path = data_folder / "task_updates.csv"
 issue_log_path = data_folder / "issue_log.csv"
 delivery_notes_path = data_folder / "delivery_notes.md"
 milestones_path = data_folder / "milestones.csv"
+graph_path = root_folder / "knowledge_graph" / "graph.json"
 
 folder_paths = [data_folder, vector_store_folder, output_folder]
 for folder in folder_paths:
