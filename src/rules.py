@@ -37,6 +37,11 @@ FINDING_PRECEDENCE = {
     "stale_updates": 1,
 }
 
+PREFERRED_SIGNAL_BY_TASK_CONTEXT = {
+    "vendor": "vendor_risk",
+    "readiness": "readiness_risk",
+}
+
 GENERIC_RULES = {"stale_updates", "critical_path_exposure"}
 SPECIFIC_RULES = {"milestone_drift", "readiness_risk", "vendor_delay", "dependency_delay", "blocker_accumulation"}
 
@@ -153,6 +158,24 @@ class RuleEngine:
         return metadata
 
     def _consolidate_findings(self, findings: List[RiskFinding]) -> List[RiskFinding]:
+        # Cross-task suppression for readiness_risk:
+        # If task 7 has readiness_risk and task 6 also has readiness_risk, 
+        # and task 7's finding is weak (schedule-only), suppress task 7 finding.
+        has_upstream_readiness = any(
+            f.task_uid == 6 and f.signal_type == "readiness_risk"
+            for f in findings
+        )
+        
+        if has_upstream_readiness:
+            findings = [
+                f for f in findings
+                if not (
+                    f.signal_type == "readiness_risk" and 
+                    f.task_uid == 7 and 
+                    set(f.metadata.get("evidence_sources", [])) == {"schedule"}
+                )
+            ]
+
         grouped: dict[Optional[int], List[RiskFinding]] = {}
         for f in findings:
             key = f.task_uid
@@ -184,6 +207,22 @@ class RuleEngine:
         return final_findings
 
     def choose_primary_finding(self, findings_for_task: List[RiskFinding]) -> List[RiskFinding]:
+        # Context-based suppression
+        task = self.tasks_by_uid.get(findings_for_task[0].task_uid) if findings_for_task else None
+        if task:
+            # Infer context
+            evidence_text = " ".join([f.summary for f in findings_for_task] + [e for f in findings_for_task for e in f.evidence]).lower()
+            task_text = f"{task.name or ''} {task.slip_category or ''} {task.owner_team or ''}".lower()
+            full_text = f"{task_text} {evidence_text}"
+
+            context = None
+            if any(k in full_text for k in VENDOR_KEYWORDS): context = "vendor"
+            elif any(k in full_text for k in READINESS_KEYWORDS): context = "readiness"
+            
+            preferred_signal = PREFERRED_SIGNAL_BY_TASK_CONTEXT.get(context)
+            if preferred_signal and any(f.signal_type == preferred_signal for f in findings_for_task):
+                findings_for_task = [f for f in findings_for_task if f.signal_type == preferred_signal or f.signal_type != "schedule_delay"]
+
         # Precedence-based filtering
         findings_for_task.sort(key=lambda f: FINDING_PRECEDENCE.get(f.rule_name, 0), reverse=True)
         
