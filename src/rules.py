@@ -28,6 +28,15 @@ RULE_PRIORITY = {
     "critical_path_exposure": 40,
 }
 
+FINDING_PRECEDENCE = {
+    "vendor_delay": 4,
+    "dependency_delay": 4,
+    "readiness_risk": 4,
+    "schedule_delay": 3,
+    "critical_path_exposure": 2,
+    "stale_updates": 1,
+}
+
 GENERIC_RULES = {"stale_updates", "critical_path_exposure"}
 SPECIFIC_RULES = {"milestone_drift", "readiness_risk", "vendor_delay", "dependency_delay", "blocker_accumulation"}
 
@@ -144,14 +153,14 @@ class RuleEngine:
         return metadata
 
     def _consolidate_findings(self, findings: List[RiskFinding]) -> List[RiskFinding]:
-        grouped: dict[tuple[Optional[int], Optional[str]], List[RiskFinding]] = {}
+        grouped: dict[Optional[int], List[RiskFinding]] = {}
         for f in findings:
-            key = (f.task_uid, f.milestone_id)
+            key = f.task_uid
             grouped.setdefault(key, []).append(f)
 
         final_findings: List[RiskFinding] = []
 
-        for (task_uid, milestone_id), group in grouped.items():
+        for task_uid, group in grouped.items():
             # Apply new suppression logic
             group = self.choose_primary_finding(group)
             
@@ -175,6 +184,27 @@ class RuleEngine:
         return final_findings
 
     def choose_primary_finding(self, findings_for_task: List[RiskFinding]) -> List[RiskFinding]:
+        # Precedence-based filtering
+        findings_for_task.sort(key=lambda f: FINDING_PRECEDENCE.get(f.rule_name, 0), reverse=True)
+        
+        kept = []
+        for f in findings_for_task:
+            keep = True
+            for k in kept:
+                # If f is lower precedence than k
+                if FINDING_PRECEDENCE.get(f.rule_name, 0) < FINDING_PRECEDENCE.get(k.rule_name, 0):
+                    # If same sources and same milestone (target), drop lower precedence finding
+                    sources_f = set(f.metadata.get("evidence_sources", []))
+                    sources_k = set(k.metadata.get("evidence_sources", []))
+                    
+                    if sources_f == sources_k and f.milestone_id == k.milestone_id:
+                        keep = False
+                        break
+            if keep:
+                kept.append(f)
+        
+        findings_for_task = kept
+        
         # 1. Readiness vs Schedule Delay
         has_readiness = any(f.rule_name == "readiness_risk" for f in findings_for_task)
         has_schedule_delay = any(f.signal_type == "schedule_delay" for f in findings_for_task)

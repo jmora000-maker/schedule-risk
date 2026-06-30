@@ -1,47 +1,66 @@
 ================================================================================
 SCHEDULE RISK REPORT
 Report Date: June 29, 2026
-Total Findings: 6
-Task-Linked Findings: 6
+Total Findings: 10
+Task-Linked Findings: 10
 Milestone-Linked Findings: 1
 ================================================================================
 
 TOP FINDINGS
 
+- [critical] schedule_delay :: Task UID 3
+  Impact: This delay jeopardizes the Production Signoff Milestone, pushing it beyond the baseline date and reducing schedule confidence.
+  Action: Escalate the approval process for required documentation from Vendor B to mitigate further delays. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
+
+- [critical] schedule_delay :: Task UID 4
+  Impact: Delays in 'Vendor Delivery' threaten the overall project timeline, risking critical milestones.
+  Action: Escalate the delay of 'Requirements and Design' to secure timely vendor delivery. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
+
+- [critical] status_risk :: Task UID 4
+  Impact: This could lead to delays in project milestones and affect overall project timelines due to unresolved vendor issues.
+  Action: Escalate the vendor delivery status to ensure timely updates and resolution of health issues. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
+
 - [critical] schedule_delay :: Task UID 5
-  Impact: Delays in 'Build' and 'Vendor Delivery' jeopardize the critical path, risking overall project timelines.
-  Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
-  Evidence Strength: weak
-  Evidence Sources: schedule_task
-  Evidence Note: Currently supported by schedule data only.
+  Impact: Delays in 'Integration and Test' jeopardize the Production Signoff Milestone, reducing overall schedule confidence.
+  Action: Escalate the delay issues with the vendor to secure timely delivery of required components. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
 
-- [high] critical_path_risk :: Task UID 2
-  Impact: If this task is delayed further, it will directly impact the overall project timeline and deliverables.
-  Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
-  Evidence Strength: weak
-  Evidence Sources: schedule_task
-  Evidence Note: Currently supported by schedule data only.
+- [critical] status_risk :: Task UID 5
+  Impact: This could lead to further schedule delays and reduced confidence in project timelines.
+  Action: Escalate the issue to the project manager for immediate resolution of the task's status. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
 
-- [high] schedule_delay :: Task UID 3
-  Impact: This delay risks pushing back the entire project timeline due to the critical nature of the task.
-  Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
-  Evidence Strength: weak
-  Evidence Sources: schedule_task
-  Evidence Note: Currently supported by schedule data only.
+- [critical] schedule_delay :: Task UID 6
+  Impact: This delay jeopardizes the critical path, risking further schedule slippage and reduced project confidence.
+  Action: Escalate the delay of 'Integration and Test' to secure immediate resolution. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
 
-- [high] schedule_delay :: Task UID 4
-  Impact: This delay can affect the overall project timeline, especially since 'Vendor Delivery' is a critical task.
-  Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
-  Evidence Strength: weak
-  Evidence Sources: schedule_task
-  Evidence Note: Currently supported by schedule data only.
+- [high] status_risk :: Task UID 2
+  Impact: Delays in this task risk subsequent phases, potentially jeopardizing the overall project timeline and milestones.
+  Action: Escalate the need for immediate updates on the 'Requirements and Design' task to resolve health issues. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
 
-- [high] schedule_delay :: Task UID 6
-  Impact: This delay may jeopardize the critical path and overall project timeline.
-  Action: Validate the latest status and confirm whether the schedule dates still reflect current reality. (llm)
-  Evidence Strength: weak
-  Evidence Sources: schedule_task
-  Evidence Note: Currently supported by schedule data only.
+- [high] status_risk :: Task UID 3
+  Impact: This could lead to significant delays in the project timeline, affecting critical path and milestone completion.
+  Action: Escalate the approval process for Vendor B's documentation to mitigate delays. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
+
+- [high] vendor_risk :: Task UID 4
+  Impact: The delay in vendor delivery could jeopardize project timelines and subsequent tasks dependent on this delivery.
+  Action: Escalate the vendor delivery issue to ensure timely resolution and prevent further delays. (llm)
+  Evidence Strength: moderate
+  Evidence Sources: meeting_note_signal, schedule_task
 
 - [high] schedule_delay :: Task UID 7
   Impact: The delay in 'Deployment Readiness' affects the critical path, risking overall project timelines.
@@ -56,9 +75,10 @@ AT-RISK MILESTONES
 
 UNLINKED FINDINGS
 
-- Findings without milestone linkage: 5
+- Findings without milestone linkage: 9
 
 FINDINGS BY SIGNAL TYPE
 
 - schedule_delay: 5
-- critical_path_risk: 1
+- status_risk: 4
+- vendor_risk: 1

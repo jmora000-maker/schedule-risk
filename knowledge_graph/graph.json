@@ -349,14 +349,14 @@
       "source_artifact": "compact_schedule.xml"
     },
     {
-      "id": "signal-milestone_drift-none-none-00ef3611",
+      "id": "signal-milestone_drift-2-none-34ca350d",
       "type": "signal",
       "signal_type": "milestone_drift",
       "severity": "high",
       "confidence": 0.7,
       "evidence": "The Requirements/planning phase (baseline Jan 6\u20139, 2026) is showing initial drag, with the current estimate extending to January 12, 2026. This indicates a potential 'target date at risk' for subsequent activities. The overall Production Signoff Milestone (baseline Jan 30, 2026) is deemed a 'milestone at risk' if current trends persist. This schedule alignment is sourced from the user's uploaded artifact",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 2,
+      "task_uid": 2,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
@@ -364,7 +364,7 @@
       "id": "signal-milestone_drift-none-none-8d87594b",
       "type": "signal",
       "signal_type": "milestone_drift",
-      "severity": "critical",
+      "severity": "high",
       "confidence": 0.6,
       "evidence": "Initial discussions regarding requirements for specific modules are proving more complex and protracted than anticipated, suggesting 'requirements not stable'. This directly contributes to the 'target date at risk'.",
       "task_id": null,
@@ -385,50 +385,50 @@
       "source_artifact": "meeting_notes_v3.docx"
     },
     {
-      "id": "signal-dependency_delay-none-none-3b78b879",
+      "id": "signal-dependency_delay-2-none-4233a7af",
       "type": "signal",
       "signal_type": "dependency_delay",
       "severity": "high",
       "confidence": 0.6,
       "evidence": "The Requirements/planning phase officially completed on January 12, 2026. The Build phase started on January 13, 2026, already experiencing a 'dependency delay' from the extended Requirements/planning. The Build phase (baseline Jan 10\u201316, 2026) is currently estimated to complete on January 21, 2026. Vendor Delivery (baseline Jan 10\u201317, 2026) is also showing signs of 'vendor delivery delay', with current estimates pushing it to January 23, 2026. The Production Signoff Milestone (baseline Jan 30, 2026) is now clearly a 'milestone at risk' due to these accumulating delays. This schedule alignment is sourced from the user's uploaded artifact",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 2,
+      "task_uid": 2,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
     {
-      "id": "signal-dependency_delay-none-none-82bf8fe9",
+      "id": "signal-dependency_delay-4-none-3bf5fe60",
       "type": "signal",
       "signal_type": "dependency_delay",
-      "severity": "critical",
+      "severity": "high",
       "confidence": 0.6,
       "evidence": "dependency delay, vendor delivery delay, environment instability, milestone at risk",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 4,
+      "task_uid": 4,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
     {
-      "id": "signal-milestone_drift-none-none-c1015194",
+      "id": "signal-milestone_drift-3-none-98786a5d",
       "type": "signal",
       "signal_type": "milestone_drift",
       "severity": "critical",
       "confidence": 0.6,
       "evidence": "The Build phase is now estimated to complete on January 21, 2026. Vendor Delivery is anticipated on January 23, 2026. The Integration and Test phase (baseline Jan 20\u201327, 2026) is now estimated to run from January 26\u2013February 2, 2026. This represents a significant 'critical path impact' and a severe 'milestone at risk' situation for the Production Signoff Milestone (baseline Jan 30, 2026). Our 'schedule confidence reduced' dramatically due to these accumulated delays. This schedule alignment is sourced from the user's uploaded artifact",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 3,
+      "task_uid": 3,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
     {
-      "id": "signal-rework_signal-none-none-cddacaa9",
+      "id": "signal-rework_signal-3-none-0f928b7e",
       "type": "signal",
       "signal_type": "rework_signal",
       "severity": "critical",
       "confidence": 0.6,
       "evidence": "A high volume of critical defects has been reported during early integration builds, causing a significant 'defect backlog increasing'. Key approvals required for provisioning the production deployment infrastructure are still 'approval pending'. Furthermore, a critical 'action item slipped' for Vendor B regarding required documentation for compliance.",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 3,
+      "task_uid": 3,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
@@ -445,14 +445,14 @@
       "source_artifact": "meeting_notes_v3.docx"
     },
     {
-      "id": "signal-milestone_drift-none-none-ab59b6c8",
+      "id": "signal-milestone_drift-5-none-f20a8414",
       "type": "signal",
       "signal_type": "milestone_drift",
       "severity": "critical",
       "confidence": 0.6,
       "evidence": "The Integration and Test phase was completed on February 2, 2026. The Readiness review, originally baseline Jan 28\u201330, 2026, is now scheduled for February 3\u20135, 2026. The Production Signoff Milestone, originally baseline January 30, 2026, has officially slipped. The new target date for Production Signoff is now confirmed as February 6, 2026. This confirms the 'critical path impact' and the 'target date at risk' has materialized. Overall 'schedule confidence reduced' to low before the revised plan. This schedule alignment is sourced from the user's uploaded artifact",
-      "task_id": null,
-      "task_uid": null,
+      "task_id": 5,
+      "task_uid": 5,
       "milestone_id": null,
       "source_artifact": "meeting_notes_v3.docx"
     },
@@ -692,6 +692,36 @@
       "from": "task-6",
       "to": "task-7",
       "type": "precedes"
+    },
+    {
+      "from": "signal-milestone_drift-2-none-34ca350d",
+      "to": "task-2",
+      "type": "threatens"
+    },
+    {
+      "from": "signal-dependency_delay-2-none-4233a7af",
+      "to": "task-2",
+      "type": "threatens"
+    },
+    {
+      "from": "signal-dependency_delay-4-none-3bf5fe60",
+      "to": "task-4",
+      "type": "threatens"
+    },
+    {
+      "from": "signal-milestone_drift-3-none-98786a5d",
+      "to": "task-3",
+      "type": "threatens"
+    },
+    {
+      "from": "signal-rework_signal-3-none-0f928b7e",
+      "to": "task-3",
+      "type": "threatens"
+    },
+    {
+      "from": "signal-milestone_drift-5-none-f20a8414",
+      "to": "task-5",
+      "type": "threatens"
     }
   ]
 }
