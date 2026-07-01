@@ -3,7 +3,7 @@ Script Name: llm.py
 Description: Explanation layer for risk findings and actionable recommendations.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-30
+Last Modified: 2026-07-01
 """
 
 import json
@@ -144,6 +144,23 @@ def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceB
 def recommend_next_action(finding: RiskFinding, evidence: RetrievedEvidenceBundle) -> str:
     explanation = generate_risk_explanation(finding, evidence)
     return clean_action_text(explanation.recommended_action)
+
+def generate_explanations_and_evidence(findings, rag_engine, graph):
+    """
+    Generates risk explanations and evidence maps for the given findings.
+    """
+    explanations = {}
+    evidence_map = {}
+    for f in findings:
+        bundle = rag_engine.build_evidence_bundle(f, graph)
+        evidence_map[f.finding_id] = bundle
+
+        exp = generate_risk_explanation(f, bundle)
+        exp.recommended_action = clean_action_text(
+            recommend_next_action(f, bundle)
+        )
+        explanations[f.finding_id] = exp
+    return explanations, evidence_map
 
 def generate_milestone_summary(findings: List[RiskFinding]) -> str:
     if not findings:

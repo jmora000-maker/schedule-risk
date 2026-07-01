@@ -3,7 +3,7 @@ Script Name: main.py
 Description: Main entry point for the schedule-risk pipeline.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-07-01
 """
 
 
@@ -54,22 +54,11 @@ def run_automated_pipeline(data_path: Path = Path("data")) -> str:
         rag_engine.save(rag_dir)
     else:
         print(" -> Loaded RAG Engine from vector_store.")
-        
-    explanations = {}
-    evidence_map = {}
-    print(f" -> Building evidence map for {len(findings)} findings.")
-    print(" -> Sending findings to RAG Engine for evidence retrieval.")
-    print(" -> Generating risk explanations using LLM.")
-    
-    for f in findings:
-        bundle = rag_engine.build_evidence_bundle(f, graph)
-        evidence_map[f.finding_id] = bundle
 
-        exp = llm.generate_risk_explanation(f, bundle)
-        exp.recommended_action = llm.clean_action_text(
-            llm.recommend_next_action(f, bundle)
-        )
-        explanations[f.finding_id] = exp
+    print(f" -> Building evidence map for {len(findings)} findings.")
+
+    print(" -> Generating risk explanations using LLM.")
+    explanations, evidence_map = llm.generate_explanations_and_evidence(findings, rag_engine, graph)
     
     # 5. Reporting
     print("STEP 5: Generating Report.")
