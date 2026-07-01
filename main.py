@@ -51,7 +51,6 @@ def run_automated_pipeline(data_path: Path = Path("data")) -> str:
     print(f" -> Building evidence map for {len(findings)} findings.")
     print(" -> Sending findings to RAG Engine for evidence retrieval.")
     print(" -> Generating risk explanations using LLM.")
-    print(" -> This may take a few minutes ...")
     
     for f in findings:
         bundle = rag_engine.build_evidence_bundle(f, graph)
