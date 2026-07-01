@@ -3,7 +3,7 @@ Script Name: taxonomy.py
 Description: Normalizes project concerns into structured risk signals based on a corporate taxonomy.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-30
 """
 
 import re
@@ -11,6 +11,10 @@ from typing import Dict, Any, List, Optional
 from src.models import RiskSignal
 from src.utils import parse_int
 
+# --- CORPORATE TAXONOMY NORMALIZER ---
+# This class implements a simple taxonomy-based approach to normalize project concerns into structured risk signals.
+# It uses a predefined set of triggers to categorize concerns and assign appropriate severity and confidence levels.
+# The taxonomy categories and triggers are designed to capture common project risks and their associated signals.
 class CorporateTaxonomyNormalizer:
     def __init__(self):
         # New taxonomy categories and triggers

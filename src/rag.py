@@ -21,6 +21,11 @@ ARTIFACT_PREFERENCE = {
     "critical_path_exposure": {"schedule_task", "milestone", "task_update"},
 }
 
+# --- RAGEngine ---
+# The RAGEngine class is responsible for managing the retrieval and augmentation of artifacts based on risk signals.
+# It provides methods to retrieve relevant artifacts for a given finding, and to build evidence bundles for evidence-based risk assessment.
+# The engine leverages knowledge graphs and source-aware artifact retrieval to provide context-aware evidence.
+
 class RAGEngine:
     def __init__(self, chunks: List[ArtifactChunk]):
         self.chunks = chunks

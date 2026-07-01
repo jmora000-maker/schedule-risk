@@ -3,7 +3,7 @@ Script Name: rules.py
 Description: Audits project artifacts to detect schedule-risk patterns.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-29
+Last Modified: 2026-06-30
 """
 
 from datetime import datetime, timedelta, date
@@ -44,6 +44,11 @@ PREFERRED_SIGNAL_BY_TASK_CONTEXT = {
 
 GENERIC_RULES = {"stale_updates", "critical_path_exposure"}
 SPECIFIC_RULES = {"milestone_drift", "readiness_risk", "vendor_delay", "dependency_delay", "blocker_accumulation"}
+
+# --- RuleEngine ---
+# This class encapsulates the logic for applying rules to project artifacts and generating findings based on the rules.
+# It provides methods to apply rules to project artifacts and generate findings based on the rules.
+# It also includes methods to extract relevant information from evidence bundles and to determine the strength of evidence.
 
 class RuleEngine:
     def __init__(self, context: ProjectArtifactLoader, graph: GraphManager):
@@ -300,6 +305,7 @@ class RuleEngine:
         return findings_for_task
 
     def run(self) -> List[RiskFinding]:
+        print(" -> Running risk rules.")
         all_findings: List[RiskFinding] = []
         all_findings.extend(self.detect_milestone_drift())
         all_findings.extend(self.detect_dependency_delay())

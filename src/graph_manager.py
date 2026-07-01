@@ -3,7 +3,7 @@ Script Name: graph_manager.py
 Description: Manages the knowledge graph of project artifacts and dependencies.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-28
+Last Modified: 2026-06-30
 """
 
 import json
@@ -21,6 +21,11 @@ from src.models import (
     DeliveryNote,
 )
 
+# --- GRAPH MANAGER ---
+# This class manages the knowledge graph of project artifacts and their relationships.
+# It provides methods to add nodes, edges, and query the graph for specific artifacts or relationships.
+# The graph is stored in a JSON file and can be loaded and saved from disk.
+#
 class GraphManager:
     def __init__(self, graph_path="knowledge_graph/graph.json"):
         self.graph_path = Path(graph_path)

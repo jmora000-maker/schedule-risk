@@ -3,7 +3,7 @@ Script Name: llm.py
 Description: Explanation layer for risk findings and actionable recommendations.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-29
+Last Modified: 2026-06-30
 """
 
 import json
@@ -107,6 +107,7 @@ def fallback_next_action(finding: RiskFinding) -> str:
     return f"Review {target} immediately, confirm current dates/dependencies, and assign an owner for corrective action."
 
 def generate_risk_explanation(finding: RiskFinding, evidence: RetrievedEvidenceBundle) -> RiskExplanation:
+    print(f" -> Generating LLM explanation for finding {finding.finding_id}.")
     payload = build_finding_payload(finding, evidence)
     try:
         response = client.beta.chat.completions.parse(

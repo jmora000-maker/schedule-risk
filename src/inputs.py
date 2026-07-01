@@ -39,8 +39,17 @@ import xml.etree.ElementTree as ET
 
 
 # --- PIPELINE LAYER: ARTIFACT-SPECIFIC INGESTION & STRUCTURAL FACTS ENGINE ---
+# This layer is responsible for ingesting and structuring the raw data into a format suitable for the downstream tasks.
+# It leverages the taxonomy normalizer to classify the raw data into structured entities, and it also performs additional
+# preprocessing steps to clean up the data and extract relevant metadata.
+# The goal of this layer is to prepare the data for the next stage, which is the knowledge graph generation.
+# The pipeline is designed to be modular and extensible, allowing for different ingestion methods and different
+# normalization strategies.
+#
+# The pipeline is designed to be flexible and adaptable to different data sources and formats. It can ingest data from
+# various sources such as CSV, Excel, and Word documents, and it can normalize the data using different strategies
+# such as taxonomy-based normalization or custom normalization rules.
 class ProjectArtifactLoader:
-    """Dynamic Document Content Ingestion executing explicit parsers with dense metadata population."""
 
     def __init__(self, normalizer: CorporateTaxonomyNormalizer):
         self.normalizer = normalizer

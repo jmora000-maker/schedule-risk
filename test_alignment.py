@@ -1,3 +1,10 @@
+"""
+Script Name: test_alignment.py
+Description: This script tests the entire pipeline end-to-end.
+Author: James Mora
+Created: 2026-06-28
+Last Modified: 2026-06-30
+"""
 
 from src.taxonomy import CorporateTaxonomyNormalizer
 from src.inputs import ProjectArtifactLoader
@@ -7,6 +14,10 @@ from src.rag import RAGEngine
 from src import llm, report
 from pathlib import Path
 
+# --- PIPELINE TESTING SCRIPT ---
+# This script is designed to test the entire pipeline end-to-end.
+# It loads data from the specified paths, builds the graph, runs the rule engine, generates RAG explanations, and generates a report.
+# It is intended to be used as a standalone script for debugging and testing purposes.
 def test_pipeline():
     schedule_path = Path("data/compact_schedule.xml")
     notes_path = Path("data/meeting_notes_v3.docx")
@@ -54,7 +65,7 @@ def test_pipeline():
         
     print(f"Generated {len(explanations)} explanations and {len(evidence_map)} evidence bundles.")
     
-    report_text = report.build_schedule_risk_report(findings, explanations, evidence_map)
+    report_text = report.build_schedule_risk_report(findings, explanations, evidence_map, loader.milestones)
     print(f"Report generated and saved.")
 
 if __name__ == "__main__":

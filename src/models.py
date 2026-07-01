@@ -3,7 +3,7 @@ Script Name: models.py
 Description: Data models for the schedule-risk pipeline.
 Author: James Mora
 Created: 2026-06-28
-Last Modified: 2026-06-29
+Last Modified: 2026-06-30
 """
 
 from pydantic import BaseModel, Field, conint, confloat
