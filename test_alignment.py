@@ -11,6 +11,7 @@ from src.inputs import ProjectArtifactLoader
 from src.graph_manager import GraphManager
 from src.rules import RuleEngine
 from src.rag import RAGEngine
+from src.config import vector_store_folder
 from src import llm, report
 from pathlib import Path
 
@@ -53,7 +54,14 @@ def test_pipeline():
         print(f" - {f.rule_name}: {f.summary} (Severity: {f.severity})")
 
     print("\nTesting RAGEngine, LLM, and Report Generation...")
-    rag_engine = RAGEngine(loader.raw_chunks)
+    rag_dir = vector_store_folder
+    rag_engine = RAGEngine.load(rag_dir)
+    if not rag_engine:
+        print(" -> Building RAG Engine.")
+        rag_engine = RAGEngine(loader.raw_chunks)
+        rag_engine.save(rag_dir)
+    else:
+        print(" -> Loaded RAG Engine from vector_store.")
     
     explanations = {}
     evidence_map = {}

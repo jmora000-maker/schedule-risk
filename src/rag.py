@@ -6,6 +6,8 @@ Created: 2026-06-28
 Last Modified: 2026-06-29
 """
 
+import json
+from pathlib import Path
 from typing import List, Dict, Optional, Any
 from collections import defaultdict
 from src.models import ArtifactChunk, RiskFinding, RetrievedEvidenceBundle
@@ -34,6 +36,22 @@ class RAGEngine:
         self.by_milestone_id: Dict[str, List[ArtifactChunk]] = defaultdict(list)
         
         self._index_chunks()
+
+    def save(self, directory: Path):
+        directory.mkdir(parents=True, exist_ok=True)
+        data = [chunk.model_dump(mode='json') for chunk in self.chunks]
+        with open(directory / "chunks.json", "w") as f:
+            json.dump(data, f, indent=2)
+
+    @classmethod
+    def load(cls, directory: Path):
+        file_path = directory / "chunks.json"
+        if not file_path.exists():
+            return None
+        with open(file_path, "r") as f:
+            data = json.load(f)
+        chunks = [ArtifactChunk(**item) for item in data]
+        return cls(chunks)
 
     def _index_chunks(self):
         for chunk in self.chunks:

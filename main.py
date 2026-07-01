@@ -8,6 +8,7 @@ Last Modified: 2026-06-28
 
 
 from pathlib import Path
+from src.config import vector_store_folder
 from src.taxonomy import CorporateTaxonomyNormalizer
 from src.inputs import ProjectArtifactLoader
 from src.graph_manager import GraphManager
@@ -45,7 +46,15 @@ def run_automated_pipeline(data_path: Path = Path("data")) -> str:
 
     # 4. RAG and LLM
     print("STEP 4: RAG & LLM Synthesis.")
-    rag_engine = RAGEngine(loader.raw_chunks)
+    rag_dir = vector_store_folder
+    rag_engine = RAGEngine.load(rag_dir)
+    if not rag_engine:
+        print(" -> Building RAG Engine.")
+        rag_engine = RAGEngine(loader.raw_chunks)
+        rag_engine.save(rag_dir)
+    else:
+        print(" -> Loaded RAG Engine from vector_store.")
+        
     explanations = {}
     evidence_map = {}
     print(f" -> Building evidence map for {len(findings)} findings.")
@@ -71,4 +80,3 @@ def run_automated_pipeline(data_path: Path = Path("data")) -> str:
 
 if __name__ == "__main__":
     run_automated_pipeline()
-
